@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>將能｜提案簡報製作系統</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a18;--ink2:#5a5a55;--ink3:#9a9a92;--rule:#e2e0d8;
+  --fill:#f7f6f2;--accent:#2d5a3d;--accent-light:#eaf2ec;
+  --white:#fff;--radius:8px;
+  --serif:'DM Serif Display',serif;--sans:'DM Sans',sans-serif;
+}
+body{font-family:var(--sans);background:var(--fill);color:var(--ink);font-size:14px;line-height:1.6;min-height:100vh}
+
+/* ── Header ── */
+.header{background:var(--white);border-bottom:1px solid var(--rule);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:20}
+.header-logo{font-family:var(--serif);font-size:17px;color:var(--ink)}
+.header-logo span{color:var(--accent)}
+.header-sub{font-size:12px;color:var(--ink3)}
+
+/* ── 分頁導覽 ── */
+.tabs{display:flex;border-bottom:1px solid var(--rule);background:var(--white);padding:0 24px;position:sticky;top:52px;z-index:10;overflow-x:auto}
+.tab{padding:13px 18px;font-size:13px;font-weight:500;color:var(--ink3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .2s,border-color .2s;white-space:nowrap;display:flex;align-items:center;gap:6px;user-select:none}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab.done{color:var(--ink2);cursor:pointer}
+.tab.done:hover{color:var(--ink)}
+.tab.done .check{width:15px;height:15px;border-radius:50%;background:var(--accent);color:#fff;font-size:9px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.tab.locked{opacity:.35;cursor:not-allowed;pointer-events:none}
+.tab.locked .lock-icon{display:inline-block;width:10px;height:12px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 12'%3E%3Crect x='1' y='5' width='8' height='7' rx='1.5' fill='none' stroke='%239a9a92' stroke-width='1.2'/%3E%3Cpath d='M3 5V3.5a2 2 0 014 0V5' fill='none' stroke='%239a9a92' stroke-width='1.2'/%3E%3C/svg%3E") center/contain no-repeat}
+
+/* ── 頁面 ── */
+.page{display:none;max-width:760px;margin:0 auto;padding:40px 24px 100px}
+.page.active{display:block}
+.page-eyebrow{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.page-title{font-family:var(--serif);font-size:28px;font-weight:400;margin-bottom:6px;line-height:1.25}
+.page-sub{color:var(--ink3);font-size:13px;margin-bottom:32px;line-height:1.65}
+
+/* ── 수정 중 배너 ── */
+.edit-banner{display:none;align-items:center;gap:10px;background:#fff8e8;border:1px solid #e8d48a;border-radius:var(--radius);padding:10px 16px;margin-bottom:24px;font-size:13px;color:#6b4c00}
+.edit-banner.show{display:flex}
+.edit-banner strong{font-weight:500}
+
+/* ── 步驟 ── */
+.step-label{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:14px;margin-top:28px}
+.step-label:first-of-type{margin-top:0}
+.step-label::after{content:'';flex:1;height:1px;background:var(--rule)}
+.step-num{width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ── 表單 ── */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:5px}
+.field label span{color:var(--ink3);font-weight:400}
+.field input,.field textarea{width:100%;padding:10px 14px;border:1px solid var(--rule);border-radius:var(--radius);font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--white);outline:none;resize:vertical;transition:border-color .2s,box-shadow .2s}
+.field input:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,90,61,.09)}
+.field input::placeholder,.field textarea::placeholder{color:var(--ink3)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.field-row{grid-template-columns:1fr}}
+
+/* ── 帶入欄 ── */
+.handoff-in{border-radius:var(--radius);padding:16px 18px;margin-bottom:20px;background:var(--accent-light);border:1px solid #b8d9c0}
+.handoff-in-label{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:#1e4028;margin-bottom:6px}
+.handoff-in-source{font-size:11px;padding:2px 8px;border-radius:4px;display:inline-block;background:#c8e6ce;color:#1a3822;margin-bottom:8px}
+.handoff-in-text{font-size:13px;color:#1e4028;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.handoff-empty{font-size:13px;color:#6a9a78;font-style:italic}
+
+/* ── 提示 ── */
+.notice{border-radius:var(--radius);padding:13px 17px;margin-bottom:20px;font-size:13px;line-height:1.65}
+.notice.green{background:var(--accent-light);border:1px solid #b8d9c0;color:#1e4028}
+.notice.gray{background:#f2f1ec;border:1px solid var(--rule);color:var(--ink2)}
+.notice strong{font-weight:500;display:block;margin-bottom:3px}
+.notice ul{padding-left:16px;margin-top:4px}
+.notice ul li{margin-bottom:2px}
+
+/* ── 跳過列 ── */
+.skip-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:#f2f1ec;border:1px solid var(--rule);border-radius:var(--radius);margin-bottom:20px}
+.skip-label{font-size:13px;color:var(--ink2);line-height:1.4}
+.skip-label strong{color:var(--ink);font-weight:500}
+.btn-skip{flex-shrink:0;padding:7px 14px;border:1px solid var(--rule);border-radius:var(--radius);background:var(--white);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;color:var(--ink2);transition:all .2s;white-space:nowrap}
+.btn-skip:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── 競品 ── */
+.competitor-group{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.competitor-row{display:flex;align-items:center;gap:8px}
+.competitor-index{font-size:12px;color:var(--ink3);width:18px;flex-shrink:0;text-align:right}
+.competitor-row input{flex:1;padding:10px 14px;border:1px solid var(--rule);border-radius:var(--radius);font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--white);outline:none;transition:border-color .2s,box-shadow .2s}
+.competitor-row input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(45,90,61,.09)}
+.competitor-row input::placeholder{color:var(--ink3)}
+.btn-remove{width:30px;height:30px;border:1px solid var(--rule);border-radius:6px;background:var(--white);color:var(--ink3);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;line-height:1}
+.btn-remove:hover{border-color:#e8aaaa;color:#c44}
+.btn-add{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px dashed var(--ink3);border-radius:var(--radius);background:none;font-family:var(--sans);font-size:12px;color:var(--ink3);cursor:pointer;transition:all .2s;margin-bottom:24px}
+.btn-add:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── 主按鈕 ── */
+.btn-generate{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius);font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;transition:background .15s;letter-spacing:.02em}
+.btn-generate:hover{background:#234d34}
+
+/* ── Prompt 輸出 ── */
+.output-section{margin-top:32px;display:none}
+.output-section.show{display:block}
+.output-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.output-title{font-family:var(--serif);font-size:17px;font-weight:400}
+.btn-copy{padding:7px 14px;border:1px solid var(--rule);border-radius:var(--radius);background:var(--white);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;color:var(--ink2);transition:all .2s}
+.btn-copy:hover{border-color:var(--accent);color:var(--accent)}
+.btn-copy.copied{background:var(--accent);color:#fff;border-color:var(--accent)}
+.prompt-box{background:var(--white);border:1px solid var(--rule);border-radius:var(--radius);padding:20px;font-size:13px;line-height:1.8;color:var(--ink);white-space:pre-wrap;word-break:break-word;max-height:460px;overflow-y:auto}
+
+/* ── Handoff 輸出 ── */
+.handoff-out{margin-top:28px;display:none}
+.handoff-out.show{display:block}
+.handoff-hint{font-size:12px;color:var(--ink3);margin-top:5px;margin-bottom:10px;line-height:1.55}
+.handoff-box{width:100%;min-height:108px;padding:12px 14px;border:1px solid var(--rule);border-radius:var(--radius);font-family:var(--sans);font-size:13px;line-height:1.7;color:var(--ink);background:var(--white);resize:vertical;outline:none;transition:border-color .2s}
+.handoff-box:focus{border-color:var(--accent)}
+.btn-handoff{padding:11px 22px;background:var(--ink);color:#fff;border:none;border-radius:var(--radius);font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;transition:background .2s}
+.btn-handoff:hover{background:#333}
+.handoff-confirm{display:none;align-items:center;gap:7px;font-size:13px;color:var(--accent);margin-top:10px}
+.handoff-confirm.show{display:flex}
+
+/* ── 第四分頁群組 ── */
+.s4-group{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">將能<span>｜</span>提案製作系統</div>
+  <div class="header-sub">SEO／GEO 提案簡報生成工具</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" id="tab0" onclick="switchTab(0)">
+    <span id="tab0-label">① 現況分析</span>
+  </div>
+  <div class="tab locked" id="tab1" onclick="switchTab(1)">
+    <span class="lock-icon"></span><span id="tab1-label">② 競業分析</span>
+  </div>
+  <div class="tab locked" id="tab2" onclick="switchTab(2)">
+    <span class="lock-icon"></span><span id="tab2-label">③ 關鍵字策略</span>
+  </div>
+  <div class="tab locked" id="tab3" onclick="switchTab(3)">
+    <span class="lock-icon"></span><span id="tab3-label">④ 提案組裝</span>
+  </div>
+</div>
+
+<!-- ══ 分頁 1 ══ -->
+<div class="page active" id="page0">
+  <div class="edit-banner" id="edit-banner0">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3-8 8H3v-3l8-8z" stroke="#6b4c00" stroke-width="1.3" stroke-linejoin="round" fill="none"/></svg>
+    <span>你正在修改這一步驟的內容。<strong>重新確認帶入</strong>後，後續分頁將自動更新。</span>
+  </div>
+  <p class="page-eyebrow">Step 01</p>
+  <p class="page-title">現況分析</p>
+  <p class="page-sub">填寫客戶基本資訊，系統將自動組裝完整的分析 Prompt。貼入 AI 對話後，再上傳 Ahrefs 資料即可執行分析。</p>
+
+  <div class="step-label"><span class="step-num">1</span>客戶基本資訊</div>
+  <div class="field-row">
+    <div class="field">
+      <label>客戶名稱 <span>*</span></label>
+      <input type="text" id="p1-name" placeholder="例：安達人壽（Chubb Life Taiwan）">
+    </div>
+    <div class="field">
+      <label>網站網址 <span>*</span></label>
+      <input type="text" id="p1-url" placeholder="例：https://www.chubb.com/tw-zh">
+    </div>
+  </div>
+  <div class="field">
+    <label>主打產品或服務 <span>（選填）</span></label>
+    <input type="text" id="p1-product" placeholder="例：線上直購壽險、眼睛險、意外險——主打免體檢、快速投保">
+  </div>
+
+  <div class="step-label"><span class="step-num">2</span>Ahrefs 資料（請於 AI 對話中上傳）</div>
+  <div class="notice green">
+    <strong>以下四份資料請在 AI 對話中直接上傳，系統無法自動讀取：</strong>
+    <ul>
+      <li>Ahrefs Overview 截圖（含 DR、Organic Traffic、Keywords 數量、Referring Domains）</li>
+      <li>organic-keywords.csv、top-pages.csv、backlinks.csv</li>
+    </ul>
+  </div>
+
+  <button class="btn-generate" onclick="gen1()">產生完整 Prompt</button>
+
+  <div class="output-section" id="out1">
+    <div class="output-header">
+      <p class="output-title">現況分析 Prompt</p>
+      <button class="btn-copy" id="copy1" onclick="copyText('prompt1','copy1')">複製全部</button>
+    </div>
+    <div class="prompt-box" id="prompt1"></div>
+  </div>
+
+  <div class="handoff-out" id="handoff1">
+    <div class="step-label" style="margin-top:32px"><span class="step-num">3</span>確認並帶入下一步驟</div>
+    <p class="handoff-hint">AI 完成分析後，將核心結論整理填入下方。確認後將同時解鎖「② 競業分析」與「③ 關鍵字策略」。若曾修改，重新確認即可覆蓋並更新後續帶入內容。</p>
+    <textarea class="handoff-box" id="htext1" placeholder="AI 完成現況分析後，請將以下資訊整理後填入：
+
+・情境類型（A/B/C/D）：例：B — 流量有了，但多集中在非保險核心內容，與商品轉換目標落差大
+・搜尋曝光現況：例：71% 流量來自生活理財類內容，核心產品頁（眼睛險、意外險）幾乎無自然搜尋流量
+・最大內容缺口：例：缺少評估型、比較型與情境型內容，使用者搜尋「眼睛險比較」「意外險推薦」時找不到安達
+・建議優先切入方向：例：補齊比較頁與情境頁、建立產品主題群集、強化核心產品頁 SEO 結構
+・競品網址（AI 建議或已知）：例：https://www.aia.com.tw、https://www.pcalife.com.tw、https://www.cathaylife.com.tw"></textarea>
+    <p class="handoff-hint">可直接編輯後按確認。</p>
+    <button class="btn-handoff" onclick="confirm1()">確認，進入下一步驟 →</button>
+    <div class="handoff-confirm" id="hconfirm1">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="#2d5a3d"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      已儲存。可繼續進入「② 競業分析」，或直接跳至「③ 關鍵字策略」。
+    </div>
+  </div>
+</div>
+
+<!-- ══ 分頁 2 ══ -->
+<div class="page" id="page1">
+  <div class="edit-banner" id="edit-banner1">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3-8 8H3v-3l8-8z" stroke="#6b4c00" stroke-width="1.3" stroke-linejoin="round" fill="none"/></svg>
+    <span>你正在修改這一步驟的內容。<strong>重新確認帶入</strong>後，後續分頁將自動更新。</span>
+  </div>
+  <p class="page-eyebrow">Step 02</p>
+  <p class="page-title">競業分析</p>
+  <p class="page-sub">對照競品 Ahrefs 數據，找出關鍵字、流量、內容型態的實質差距。若客戶未提供競品資訊，可跳過此步驟直接進入關鍵字策略。</p>
+
+  <div class="step-label"><span class="step-num">1</span>現況分析結論（自動帶入）</div>
+  <div class="handoff-in">
+    <div class="handoff-in-label">來自第一分頁的核心摘要</div>
+    <div id="hdisplay1" class="handoff-empty">尚未帶入。</div>
+  </div>
+
+  <div class="skip-row">
+    <span class="skip-label">客戶未提供競品資訊？<strong>可跳過此步驟</strong>，關鍵字策略將改以現況分析結論為輸入。</span>
+    <button class="btn-skip" onclick="skipS2()">跳過 →</button>
+  </div>
+
+  <div class="step-label"><span class="step-num">2</span>競品網址</div>
+  <div class="competitor-group" id="comp-group">
+    <div class="competitor-row">
+      <span class="competitor-index">1</span>
+      <input type="text" placeholder="例：https://www.aia.com.tw（友邦人壽）">
+      <button class="btn-remove" style="visibility:hidden" onclick="removeComp(this)">×</button>
+    </div>
+    <div class="competitor-row">
+      <span class="competitor-index">2</span>
+      <input type="text" placeholder="例：https://www.pcalife.com.tw（第一金人壽）">
+      <button class="btn-remove" style="visibility:hidden" onclick="removeComp(this)">×</button>
+    </div>
+    <div class="competitor-row">
+      <span class="competitor-index">3</span>
+      <input type="text" placeholder="例：https://www.cathaylife.com.tw（國泰人壽）">
+      <button class="btn-remove" style="visibility:hidden" onclick="removeComp(this)">×</button>
+    </div>
+  </div>
+  <button class="btn-add" onclick="addComp()">＋ 新增競品</button>
+
+  <div class="step-label"><span class="step-num">3</span>Ahrefs 資料（請於 AI 對話中上傳）</div>
+  <div class="notice green">
+    <strong>請在 AI 對話中，針對每個競品分別上傳：</strong>
+    <ul>
+      <li>各競品 Ahrefs Overview 截圖</li>
+      <li>各競品 organic-keywords.csv、top-pages.csv、backlinks.csv</li>
+    </ul>
+  </div>
+
+  <button class="btn-generate" onclick="gen2()">產生完整 Prompt</button>
+
+  <div class="output-section" id="out2">
+    <div class="output-header">
+      <p class="output-title">競業分析 Prompt</p>
+      <button class="btn-copy" id="copy2" onclick="copyText('prompt2','copy2')">複製全部</button>
+    </div>
+    <div class="prompt-box" id="prompt2"></div>
+  </div>
+
+  <div class="handoff-out" id="handoff2">
+    <div class="step-label" style="margin-top:32px"><span class="step-num">4</span>確認並帶入關鍵字策略</div>
+    <p class="handoff-hint">AI 完成競業分析後，將提煉出的佈局方向與關鍵字缺口填入下方。若曾修改，重新確認即可覆蓋並更新後續帶入內容。</p>
+    <textarea class="handoff-box" id="htext2" placeholder="AI 完成競業分析後，請將以下資訊整理後填入：
+
+・情境類型（A/B/C/D）：例：D — 競品（國泰、南山）已建立完整主題架構，安達仍停留在單篇產品頁
+・競品關鍵字差距最大的主題：例：眼睛險比較、意外險推薦、癌症險怎麼選——競品有完整比較頁，安達缺席
+・客戶目前缺少的內容型態：例：情境型（單身、家庭、銀髮族保障規劃）、比較型、FAQ 結構頁
+・競品已形成優勢需要錯開的領域：例：國泰在壽險主題已深耕，安達應聚焦利基產品（眼睛險、短期意外險）
+・建議客戶優先卡位的主題方向：例：眼睛險完整指南、意外險情境規劃、線上投保流程說明"></textarea>
+    <p class="handoff-hint">可直接編輯後按確認。</p>
+    <button class="btn-handoff" onclick="confirm2()">確認，帶入關鍵字策略 →</button>
+    <div class="handoff-confirm" id="hconfirm2">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="#2d5a3d"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      已儲存，點擊上方「③ 關鍵字策略」繼續。
+    </div>
+  </div>
+</div>
+
+<!-- ══ 分頁 3 ══ -->
+<div class="page" id="page2">
+  <div class="edit-banner" id="edit-banner2">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3-8 8H3v-3l8-8z" stroke="#6b4c00" stroke-width="1.3" stroke-linejoin="round" fill="none"/></svg>
+    <span>你正在修改這一步驟的內容。<strong>重新確認帶入</strong>後，後續分頁將自動更新。</span>
+  </div>
+  <p class="page-eyebrow">Step 03</p>
+  <p class="page-title">關鍵字策略</p>
+  <p class="page-sub">根據前面步驟的分析結論，規劃客戶體驗路徑、主題群集與關鍵字初步發想，產出三頁可直接放入簡報的內容。</p>
+
+  <div class="step-label"><span class="step-num">1</span>策略輸入（自動帶入）</div>
+  <div class="handoff-in">
+    <div class="handoff-in-label" id="s3-label">策略輸入來源</div>
+    <div class="handoff-in-source" id="s3-tag" style="display:none"></div>
+    <div id="hdisplay2" class="handoff-empty">尚未帶入。</div>
+  </div>
+
+  <div class="step-label"><span class="step-num">2</span>補充資訊</div>
+  <div class="field-row">
+    <div class="field">
+      <label>目標族群 <span>（選填，未填由 AI 依網站內容判斷）</span></label>
+      <input type="text" id="p3-audience" placeholder="例：25–45 歲、有健康或家庭保障需求、習慣線上比較後投保的族群">
+    </div>
+    <div class="field">
+      <label>主題群集核心關鍵字 <span>（對應前步驟建議優先卡位的主題）</span></label>
+      <input type="text" id="p3-keyword" placeholder="例：眼睛險（競業分析建議安達優先卡位的利基主題）">
+    </div>
+  </div>
+  <div class="notice gray">此分頁不需上傳 Ahrefs 資料。AI 將依前步驟分析結論與補充資訊，產出三段式簡報內容：① 客戶體驗路徑 × 搜尋關鍵字　② 主題群集結構示意　③ 關鍵字初步發想。</div>
+
+  <button class="btn-generate" onclick="gen3()">產生完整 Prompt</button>
+
+  <div class="output-section" id="out3">
+    <div class="output-header">
+      <p class="output-title">關鍵字策略 Prompt</p>
+      <button class="btn-copy" id="copy3" onclick="copyText('prompt3','copy3')">複製全部</button>
+    </div>
+    <div class="prompt-box" id="prompt3"></div>
+  </div>
+
+  <div class="handoff-out" id="handoff3">
+    <div class="step-label" style="margin-top:32px"><span class="step-num">3</span>確認並帶入提案組裝</div>
+    <p class="handoff-hint">AI 完成三段輸出後，將確認後的重點填入下方。若曾修改，重新確認即可覆蓋並更新提案組裝的帶入內容。</p>
+    <textarea class="handoff-box" id="htext3" placeholder="AI 完成三段輸出後，請將以下資訊整理後填入：
+
+・客戶體驗路徑確認：例：採購前缺口最大——使用者搜尋「白內障手術要自費嗎」「眼睛保險有哪些」時安達完全缺席，為最優先補齊階段
+・主題群集核心主題：例：眼睛險——支柱文章確認方向為「眼睛險完整指南：保障範圍、保費與投保條件一次搞懂」
+・關鍵字發想優先分類：例：評估與選擇判斷（眼睛險比較、眼睛險推薦哪個好）為最優先，對應競業缺口與採購中前階段
+・需在提案中特別強調的連動邏輯：例：核心產品頁零流量 → 比較型內容缺席 → 評估型關鍵字優先佈局，三段論述前後呼應"></textarea>
+    <p class="handoff-hint">可直接編輯後按確認。</p>
+    <button class="btn-handoff" onclick="confirm3()">確認，進入提案組裝 →</button>
+    <div class="handoff-confirm" id="hconfirm3">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" fill="#2d5a3d"/><path d="M5 8l2 2 4-4" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      已儲存，點擊上方「④ 提案組裝」繼續。
+    </div>
+  </div>
+</div>
+
+<!-- ══ 分頁 4 ══ -->
+<div class="page" id="page3">
+  <p class="page-eyebrow">Step 04</p>
+  <p class="page-title">提案組裝</p>
+  <p class="page-sub">整合前面所有步驟的分析結論，產出邏輯一致、前後連貫的完整提案 Prompt，可直接貼入 AI 生成簡報內容。若需修改任一步驟，點擊上方對應分頁即可返回調整。</p>
+
+  <div class="step-label"><span class="step-num">1</span>各步驟結論（自動帶入）</div>
+  <div class="s4-group">
+    <div class="handoff-in">
+      <div class="handoff-in-label">① 現況分析結論</div>
+      <div id="hdisplay3a" class="handoff-empty">尚未帶入。</div>
+    </div>
+    <div class="handoff-in">
+      <div class="handoff-in-label" id="s4-s2-label">② 競業分析結論</div>
+      <div id="hdisplay3b" class="handoff-empty">尚未帶入。</div>
+    </div>
+    <div class="handoff-in">
+      <div class="handoff-in-label">③ 關鍵字策略重點</div>
+      <div id="hdisplay3c" class="handoff-empty">尚未帶入。</div>
+    </div>
+  </div>
+
+  <div class="notice gray">系統將根據以上結論的完整度，自動選擇對應的提案結構：有競業分析時輸出四段（現況診斷 → 競品落差 → 關鍵字策略 → 執行建議），跳過競業時輸出三段（現況診斷 → 關鍵字策略 → 執行建議）。</div>
+
+  <button class="btn-generate" onclick="gen4()">產生完整提案 Prompt</button>
+
+  <div class="output-section" id="out4">
+    <div class="output-header">
+      <p class="output-title">完整提案組裝 Prompt</p>
+      <button class="btn-copy" id="copy4" onclick="copyText('prompt4','copy4')">複製全部</button>
+    </div>
+    <div class="prompt-box" id="prompt4"></div>
+  </div>
+</div>
+
+<script>
+/* ══ Prompt 模板 ══ */
+const P1=`你是一位具備實戰經驗的 SEO 與品牌搜尋策略顧問，熟悉搜尋行銷、內容策略、主題叢集、E-E-A-T 與 AI 搜尋（GEO）邏輯。你的任務是結合「網站可見內容」與「Ahrefs 數據」，輸出可用於提案與簡報的《網站搜尋行銷現況全面分析》。
+
+━━ 分析對象 ━━
+客戶名稱：{{NAME}}
+網站網址：{{URL}}{{PRODUCT}}
+
+━━ 資料上傳提醒 ━━
+請在此對話中上傳以下 Ahrefs 資料：
+・Ahrefs Overview 截圖（含 DR、Organic Traffic、Keywords 數量、Referring Domains）
+・organic-keywords.csv　・top-pages.csv　・backlinks.csv
+
+━━ 重要分析規則（務必遵守）━━
+・僅依官網可見內容與上傳 Ahrefs 檔案分析，不可杜撰，不可假設有 GA4／GSC 後台。
+・所有重要結論標示來源：【網站】【Ahrefs-關鍵字】【Ahrefs-頁面】【Ahrefs-外鏈】。
+・資料不足時，明確標示「資料不足，僅能初步推測」。
+・以中立、專業、顧問視角撰寫，句長精簡，可直接用於簡報。
+・禁止使用：賦能、全面、有效提升、不是…是…句型。
+
+━━ 分析任務（依序完成）━━
+
+A、網站內容與架構判讀【網站】
+・品牌定位、目標受眾與核心問題是否清楚
+・內容型態是否齊全（產品/服務頁、部落格、FAQ、案例、比較頁）
+・基礎 SEO 要素（標題、Meta、URL、圖片 Alt）是否具備關鍵字意識
+・導購與轉換結構：CTA、內容頁→產品/服務頁串聯狀況
+・AI/GEO 可讀性：首段主題是否明確、段落是否可獨立理解、是否具 FAQ
+
+B、Ahrefs 數據重點整理
+・流量主要集中在哪些「主題類型」【Ahrefs-關鍵字】
+・品牌字 vs 非品牌字、資訊型 vs 交易型的結構趨勢【Ahrefs-關鍵字】
+・目前具需求但排名明顯不足的高價值主題方向【Ahrefs-關鍵字】
+・主要帶量頁面的內容角色與搜尋意圖【Ahrefs-頁面】
+・外鏈來源類型與可信度輪廓【Ahrefs-外鏈】
+
+C、交叉洞察（網站 × Ahrefs）
+・網站內容佈局是否與實際帶量主題一致？落差為何
+・搜尋旅程中最大斷點在哪（認知／比較／選擇／轉換）
+・限制成長的核心因素：內容廣度、深度，還是主題權威
+・現有流量是否被有效導向轉換，卡點在哪
+
+D、策略建議方向（3–6 個，含優先順序與依據來源）
+
+━━ 最終輸出格式 ━━
+1. 一句話總結（15–25 字，判斷句，作為簡報大標）
+2. 現況總覽（2–4 段，含符合的情境類型：A/B/C/D 或複合）
+3. 四大診斷重點（關鍵字缺口／關鍵字佈局／導購轉換／AI 時代因應）
+4. 優先策略切入點（3–6 項）
+5. 需補充的資料（如有）`;
+
+const P2=`你是一位資深 SEO 與搜尋語意策略顧問，熟悉 Ahrefs 關鍵字與流量數據判讀、主題群集、內容導購結構，以及 AI Search / GEO 的內容理解邏輯。請以顧問角度，將分析結果轉化為簡報可直接使用的策略對照內容。
+
+━━ 分析背景（來自現況分析）━━
+{{H1}}
+
+━━ 競品網址 ━━
+{{COMPS}}
+
+━━ 資料上傳提醒 ━━
+請在此對話中，針對每個競品分別上傳：
+・Ahrefs Overview 截圖　・organic-keywords.csv　・top-pages.csv　・backlinks.csv
+
+━━ 分析目的 ━━
+根據我方官網與競品官網，搭配 Ahrefs 數據，深入分析在「關鍵字佈局、內容結構、導購轉換、AI 搜尋因應」上的實質差異與策略缺口，讓品牌窗口意識到與競品的落差，進而提升合作意願。
+
+━━ 重要分析規則（務必遵守）━━
+・僅依上傳的 Ahrefs 資料與官網可見內容分析，不可杜撰數字。
+・所有重要結論標示來源：【我方-關鍵字】【競品A-頁面】等。
+・資料不足時，明確標示「資料不足，僅能初步推測」。
+・禁止使用：賦能、全面、有效提升、不是…是…句型。
+分析時融入四大隱含觀察面向（不需列點輸出，融入各段分析）：
+1. 關鍵字缺口與主題權威　2. 關鍵字佈局結構　3. 導購與轉換設計　4. AI Search / GEO 因應
+
+━━ 分析任務（依序完成）━━
+A、關鍵字差異：主題類型對比、競品有在排我方缺席的方向、重疊關鍵字中排名差距、品牌字依賴程度比較
+B、流量差異：規模對比（說明結構差異）、流量集中度、資訊型 vs 交易型比例
+C、內容型態差異：競品獨有頁型、搜尋旅程缺失階段、同主題內容深度差異
+D、策略結論：3–5 個值得參考的布局方向（含依據與優先順序）、不建議跟進的方向（含原因）
+
+━━ 最終輸出格式 ━━
+1. 一句話總結（競品局勢 vs 我方當前位置，判斷句）
+2. 三維度差異分析（關鍵字／流量／內容型態，各一段）
+3. 符合的情境類型（A/B/C/D 或複合，含對應洞察敘述）
+4. 值得參考的布局策略（3–5 項）
+5. 不建議跟進的方向（1–2 項，說明原因）
+6. 需補充的資料（如有）`;
+
+const P3=`你是一位資深 SEO 與搜尋行銷策略顧問，你的任務不是產出完整關鍵字清單，而是模擬「向品牌窗口簡報時的關鍵字內容策略思考方式」。所有輸出內容必須能直接放入提案簡報，嚴格對齊該網站實際產品與服務。
+
+━━ 分析背景（來自前步驟）━━
+{{H_INPUT}}
+（來源：{{SOURCE_LABEL}}）
+
+━━ 補充資訊 ━━
+{{AUD}}{{KW}}
+
+━━ 執行前準備（必須完成，再開始輸出）━━
+請先完整讀取並理解該網站內容，確認以下三點：
+1. 核心產品／服務為何
+2. 主要目標族群為何
+3. 網站主要轉換目的為何
+
+確認後，所有輸出內容必須嚴格對齊該網站實際狀況，不得泛化推論，不得把其他產業或競品的內容套入。
+
+━━ 重要輸出規則 ━━
+・不輸出完整關鍵字清單
+・不提搜尋量、競爭度或任何工具數據
+・不使用 SEO 技術術語
+・禁止使用：賦能、全面、有效提升、不是…是…句型
+・僅輸出代表性、示意型內容，可直接放入提案簡報
+
+━━ 關鍵字思考方式（最重要的原則）━━
+
+關鍵字不是品名與屬性詞的機械組合，而是還原真實搜尋情境的結果。
+
+在生成任何關鍵字之前，必須先問：「這個族群的人，在什麼樣的生活情境下、帶著什麼樣的疑問，會打開搜尋框？他在那個當下腦子裡想的是什麼？他會怎麼打這幾個字？」
+
+從真實情境出發，才能得到自然、精準、有搜尋空間的詞。
+
+【以下為思考邏輯的示意舉例，僅用於說明如何從情境推導關鍵字。不得將以下內容視為本次輸出的產業框架或參考格式，請完全依據上方分析背景中的實際產品與服務進行推導。】
+
+思考示意：
+・同一個品名，在不同情境下對應完全不同的搜尋詞
+・一個人剛從某個生活事件中意識到自己有潛在需求，他搜尋的詞，跟一個已在比較商品的人完全不同
+・一個擔心自身資格或條件的人，會搜的詞，跟一個在問費用的人也不同
+・準備行動前確認細節的人，跟使用後有疑問的人，處在完全不同的決策時刻
+
+【示意舉例結束。以下回到固定框架，請依據實際分析背景套用。】
+
+━━ 關鍵字型態框架（確保覆蓋不同需求方向）━━
+
+品名是核心，以下六個方向是框架。詞的實際樣貌必須從受眾的真實搜尋情境出發，不可直接用屬性詞硬拼。
+
+1. 理解與基礎認知
+   適用情境：對這個產品或服務還不熟悉、想先搞清楚基本概念的人
+   常見詞型：品名 ＋ 是什麼、意思、種類、範圍、差別、限制
+
+2. 評估與選擇判斷
+   適用情境：已有需求、正在比較選項、想找推薦或做決策的人
+   常見詞型：品名 ＋ 推薦、比較、哪個好、怎麼選、差在哪、適合誰
+
+3. 費用與額度評估
+   適用情境：對價格敏感、想先評估費用與值不值得的人
+   常見詞型：品名 ＋ 費用、多少錢、划算嗎、額度
+
+4. 申請與流程細節
+   適用情境：已決定或接近決定、想了解如何進行或會遇到什麼狀況的人
+   常見詞型：品名 ＋ 申請、流程、條件、要多久、要準備什麼
+
+5. 情境與族群規劃
+   適用情境：對號入座型，依自身身份或生活情境搜尋適合方案的人
+   常見詞型：族群或情境（單身、家庭、樂齡、上班族）＋ 品名或需求
+
+6. 行動與使用後延伸
+   適用情境：準備行動或已使用後有後續問題的人
+   常見詞型：品名 ＋ 怎麼買、注意事項、使用後問題、延伸需求
+
+【關鍵字型態限制】
+・詞型應為使用者實際會輸入搜尋框的自然語感
+・以品名搭配意圖詞為主，長度約 4–8 個中文字
+・嚴格避免：純品名單字（無意圖詞）、完整問句長句、空泛組合詞
+
+【文章標題 SEO 規格】
+・25–32 個中文字　・完整自然中文句　・需自然包含核心或群集關鍵字
+
+━━ 輸出任務（三段，依序完成）━━
+
+【輸出一｜客戶體驗路徑 × 搜尋關鍵字】
+請先還原目標族群在採購各階段的真實搜尋行為，再對應以下四個階段輸出。
+每段提供：階段名稱、一句描述該階段搜尋行為的說明、2–4 個符合該情境的真實搜尋詞。
+
+1. 探索需求與基礎理解（採購前）
+2. 評估選項與比較判斷（採購中前）
+3. 確認行動與決策細節（採購中後）
+4. 使用後／合作後的延伸需求（採購後）
+
+【輸出二｜主題群集結構示意】
+以補充資訊中的「主題群集核心關鍵字」為中心規劃 Topic Cluster。
+群集關鍵字必須涵蓋不同屬性方向，從受眾真實搜尋情境出發，不可同一方向堆疊。
+
+一、群集關鍵字池（6–10 個，需涵蓋至少四個不同屬性方向）
+二、支柱文章（1 篇，標題符合 25–32 字規格，自然包含核心關鍵字）
+三、群集文章（3 篇，各對應不同屬性方向，標題符合 25–32 字規格）
+四、支柱文章 → 群集文章內連結錨文字（3 個）
+五、群集文章 → 支柱文章回鏈錨文字（1 組）
+
+【輸出三｜關鍵字初步發想】
+以品名為核心，依六個屬性方向各提供 2–4 個從受眾搜尋情境出發的代表性搜尋詞。
+每個方向輸出時，先寫一句說明「這個方向對應哪種使用者在哪個時刻搜尋」，再列搜尋詞。
+
+六個方向：
+1. 理解與基礎認知　2. 評估與選擇判斷　3. 費用與額度評估
+4. 申請與流程細節　5. 情境與族群規劃　6. 行動與使用後延伸
+
+━━ 最終輸出期待 ━━
+輸出可直接放入三頁提案簡報的關鍵字內容策略示意。每段格式清晰，內容嚴格對齊該網站產品，可直接複製使用。`;
+
+const P4_S2=`你是一位資深 SEO 與搜尋行銷策略顧問，請根據以下三個步驟的分析結論，整合產出一份邏輯一致、前後連貫的完整提案內容，可直接用於簡報製作。
+
+━━ 步驟一：現況分析結論 ━━
+{{H1}}
+
+━━ 步驟二：競業分析結論 ━━
+{{H2}}
+
+━━ 步驟三：關鍵字策略重點 ━━
+{{H3}}
+
+━━ 整合任務 ━━
+
+【第一段｜現況診斷】
+以現況分析結論為基礎，用清楚的診斷語言說明：客戶目前的搜尋行銷體質、最大的結構性限制、以及為什麼這個問題值得現在處理。需讓品牌窗口感受到這是影響品牌搜尋成長的核心瓶頸。
+
+【第二段｜競品落差】
+以競業分析結論為基礎，用對照方式呈現：客戶與競品在關鍵字佈局、內容結構、導購設計上的實質差距，以及這些差距如何影響客戶在搜尋旅程中的曝光機會與轉換能力。
+
+【第三段｜關鍵字策略方向】
+以關鍵字策略重點為基礎，說明建議的內容佈局邏輯：從哪個主題切入、為什麼這個順序、如何從群集關鍵字逐步鞏固核心主題權威。需連回前兩段的診斷與競品落差，讓策略方向有明確依據。
+
+【第四段｜執行建議與 GEO 連動】
+提出 3–5 個具體且有優先順序的執行建議，每項說明：做什麼、為什麼現在做、預期能解決什麼問題。最後說明這些調整不只影響自然排名，也會提升品牌在 AI 搜尋中的理解度與引用機會。
+
+━━ 輸出規範 ━━
+・文字可直接放入簡報，每段使用清楚的段落標題。
+・禁止使用：賦能、全面、有效提升、不是…是…句型。
+・句長精簡，以判斷句為主，避免空泛描述。`;
+
+const P4_NO_S2=`你是一位資深 SEO 與搜尋行銷策略顧問，請根據以下兩個步驟的分析結論（此次提案未進行競業分析），整合產出一份邏輯一致、前後連貫的完整提案內容，可直接用於簡報製作。
+
+━━ 步驟一：現況分析結論 ━━
+{{H1}}
+
+━━ 步驟二：關鍵字策略重點 ━━
+{{H3}}
+
+━━ 整合任務 ━━
+
+【第一段｜現況診斷】
+以現況分析結論為基礎，用清楚的診斷語言說明：客戶目前的搜尋行銷體質、最大的結構性限制、以及為什麼這個問題值得現在處理。
+
+【第二段｜關鍵字策略方向】
+以關鍵字策略重點為基礎，說明建議的內容佈局邏輯：從哪個主題切入、為什麼這個順序、如何從群集關鍵字逐步鞏固核心主題權威。需連回第一段的診斷結論，讓策略方向有明確依據。
+
+【第三段｜執行建議與 GEO 連動】
+提出 3–5 個具體且有優先順序的執行建議，每項說明：做什麼、為什麼現在做、預期能解決什麼問題。最後說明這些調整不只影響自然排名，也會提升品牌在 AI 搜尋中的理解度與引用機會。
+
+━━ 輸出規範 ━━
+・文字可直接放入簡報，每段使用清楚的段落標題。
+・禁止使用：賦能、全面、有效提升、不是…是…句型。
+・句長精簡，以判斷句為主，避免空泛描述。`;
+
+/* ══ 狀態追蹤：哪些分頁已完成 ══ */
+const tabState={0:'active',1:'locked',2:'locked',3:'locked'};
+
+/* ══ 分頁切換 ══ */
+function switchTab(i){
+  const t=document.getElementById('tab'+i);
+  if(t.classList.contains('locked'))return;
+  document.querySelectorAll('.tab').forEach(el=>{
+    el.classList.remove('active');
+    if(tabState[el.id.replace('tab','')]!=='locked'&&el.id!=='tab'+i){
+      // 保持 done 狀態
+    }
+  });
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  // 更新分頁視覺
+  for(let j=0;j<4;j++){
+    const tab=document.getElementById('tab'+j);
+    tab.classList.remove('active');
+    if(j===i) tab.classList.add('active');
+  }
+  document.getElementById('page'+i).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  // 顯示修改中 banner（非第一次進入）
+  const banner=document.getElementById('edit-banner'+i);
+  if(banner){
+    const isDone=tabState[i]==='done';
+    banner.classList.toggle('show',isDone);
+  }
+
+  // 載入帶入內容
+  if(i===1){loadHD('hdisplay1','handoff_step1');}
+  if(i===2){loadS3();}
+  if(i===3){
+    loadHD('hdisplay3a','handoff_step1');
+    loadS4b();
+    loadHD('hdisplay3c','handoff_step3');
+  }
+  // 還原已填寫的 handoff textarea
+  restoreHandoff(i);
+}
+
+/* ══ 還原已填寫的 handoff textarea ══ */
+function restoreHandoff(i){
+  const map={0:'htext1',1:'htext2',2:'htext3'};
+  const keyMap={0:'handoff_step1',1:'handoff_step2',2:'handoff_step3'};
+  if(map[i]===undefined)return;
+  const saved=localStorage.getItem(keyMap[i]);
+  const el=document.getElementById(map[i]);
+  if(el&&saved&&saved.trim()){
+    el.value=saved;
+    // 同時顯示 output 區和 handoff 區
+    show('out'+i);show('handoff'+i);
+    // 顯示已確認訊息
+    document.getElementById('hconfirm'+i)?.classList.add('show');
+  }
+}
+
+/* ══ 帶入顯示 ══ */
+function loadHD(elId,key){
+  const saved=localStorage.getItem(key);
+  const el=document.getElementById(elId);
+  if(!el)return;
+  if(saved&&saved.trim()){el.className='handoff-in-text';el.textContent=saved;}
+  else{el.className='handoff-empty';el.textContent='尚未帶入。';}
+}
+
+function loadS3(){
+  const s2=localStorage.getItem('handoff_step2');
+  const s1=localStorage.getItem('handoff_step1');
+  const label=document.getElementById('s3-label');
+  const tag=document.getElementById('s3-tag');
+  const display=document.getElementById('hdisplay2');
+  if(s2&&s2.trim()){
+    label.textContent='競業分析提煉的佈局方向與關鍵字缺口';
+    tag.textContent='來源：② 競業分析';tag.style.display='inline-block';
+    display.className='handoff-in-text';display.textContent=s2;
+  }else if(s1&&s1.trim()){
+    label.textContent='現況分析提煉的策略方向（競業分析已跳過）';
+    tag.textContent='來源：① 現況分析';tag.style.display='inline-block';
+    display.className='handoff-in-text';display.textContent=s1;
+  }else{
+    label.textContent='策略輸入來源';tag.style.display='none';
+    display.className='handoff-empty';display.textContent='尚未帶入。';
+  }
+}
+
+function loadS4b(){
+  const s2=localStorage.getItem('handoff_step2');
+  const label=document.getElementById('s4-s2-label');
+  const display=document.getElementById('hdisplay3b');
+  if(s2&&s2.trim()){
+    label.textContent='② 競業分析結論';
+    display.className='handoff-in-text';display.textContent=s2;
+  }else{
+    label.textContent='② 競業分析（已跳過）';
+    display.className='handoff-empty';display.textContent='此次提案未進行競業分析，提案組裝將以現況分析結論直接銜接關鍵字策略。';
+  }
+}
+
+/* ══ 競品欄位 ══ */
+function addComp(){
+  const g=document.getElementById('comp-group');
+  const idx=g.querySelectorAll('.competitor-row').length+1;
+  const r=document.createElement('div');r.className='competitor-row';
+  r.innerHTML=`<span class="competitor-index">${idx}</span><input type="text" placeholder="https://competitor-${idx}.com"><button class="btn-remove" onclick="removeComp(this)">×</button>`;
+  g.appendChild(r);updateComps();
+}
+function removeComp(btn){btn.closest('.competitor-row').remove();updateComps();}
+function updateComps(){
+  const rows=document.querySelectorAll('.competitor-row');
+  rows.forEach((r,i)=>{
+    r.querySelector('.competitor-index').textContent=i+1;
+    r.querySelector('.btn-remove').style.visibility=rows.length>1?'visible':'hidden';
+  });
+}
+
+/* ══ 跳過競業 ══ */
+function skipS2(){
+  localStorage.removeItem('handoff_step2');
+  setTabState(1,'done',true);
+  setTabState(2,'unlocked');
+  switchTab(2);
+}
+
+/* ══ 分頁狀態管理 ══ */
+function setTabState(i,state,skipped=false){
+  const tab=document.getElementById('tab'+i);
+  const labelEl=document.getElementById('tab'+i+'-label');
+  tab.classList.remove('locked','done','active');
+  // 清除舊的 check icon
+  const oldCheck=tab.querySelector('.check');
+  if(oldCheck)oldCheck.remove();
+  const oldLock=tab.querySelector('.lock-icon');
+  if(oldLock)oldLock.remove();
+
+  if(state==='done'){
+    tab.classList.add('done');
+    const check=document.createElement('span');
+    check.className='check';check.textContent='✓';
+    tab.insertBefore(check,tab.firstChild);
+    tabState[i]='done';
+    if(skipped&&labelEl){
+      const labels=['① 現況分析','② 競業分析（已跳過）','③ 關鍵字策略','④ 提案組裝'];
+      labelEl.textContent=labels[i];
+    }
+  }else if(state==='unlocked'){
+    tabState[i]='unlocked';
+    // 不加任何特殊 class，讓它可點擊
+  }else if(state==='locked'){
+    tab.classList.add('locked');
+    const lock=document.createElement('span');
+    lock.className='lock-icon';
+    tab.insertBefore(lock,tab.firstChild);
+    tabState[i]='locked';
+  }
+}
+
+/* ══ 複製 ══ */
+function copyText(boxId,btnId){
+  const text=document.getElementById(boxId).textContent;
+  const btn=document.getElementById(btnId);
+  function onSuccess(){
+    btn.textContent='已複製 ✓';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='複製全部';btn.classList.remove('copied');},2000);
+  }
+  function fallbackCopy(){
+    const ta=document.createElement('textarea');
+    ta.value=text;
+    ta.style.cssText='position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+    document.body.appendChild(ta);
+    ta.focus();ta.select();
+    try{
+      const ok=document.execCommand('copy');
+      if(ok)onSuccess();else alert('複製失敗，請手動選取文字後複製。');
+    }catch(e){alert('複製失敗，請手動選取文字後複製。');}
+    document.body.removeChild(ta);
+  }
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(text).then(onSuccess).catch(fallbackCopy);
+  }else{
+    fallbackCopy();
+  }
+}
+
+/* ══ 產生 Prompt ══ */
+function gen1(){
+  const name=document.getElementById('p1-name').value.trim();
+  const url=document.getElementById('p1-url').value.trim();
+  const prod=document.getElementById('p1-product').value.trim();
+  if(!name||!url){alert('請填寫客戶名稱與網站網址');return;}
+  const p=P1.replace('{{NAME}}',name).replace('{{URL}}',url)
+    .replace('{{PRODUCT}}',prod?`\n主打產品／服務：${prod}`:'');
+  document.getElementById('prompt1').textContent=p;
+  show('out1');show('handoff1');scroll('out1');
+}
+
+function gen2(){
+  const h1=localStorage.getItem('handoff_step1')||'（尚未帶入現況分析結論）';
+  const inputs=document.querySelectorAll('.competitor-row input');
+  const comps=[];
+  inputs.forEach((inp,i)=>{const v=inp.value.trim();if(v)comps.push(`競品${i+1}：${v}`);});
+  if(!comps.length){alert('請至少填寫一個競品網址');return;}
+  const p=P2.replace('{{H1}}',h1).replace('{{COMPS}}',comps.join('\n'));
+  document.getElementById('prompt2').textContent=p;
+  show('out2');show('handoff2');scroll('out2');
+}
+
+function gen3(){
+  const s2=localStorage.getItem('handoff_step2');
+  const s1=localStorage.getItem('handoff_step1')||'（尚未帶入）';
+  const hasS2=s2&&s2.trim();
+  const hInput=hasS2?s2:s1;
+  const sourceLabel=hasS2
+    ?'來自競業分析的佈局方向與關鍵字缺口'
+    :'來自現況分析的策略建議方向（競業分析已跳過）';
+  const aud=document.getElementById('p3-audience').value.trim();
+  const kw=document.getElementById('p3-keyword').value.trim();
+  const audLine=aud?`目標族群：${aud}\n`:'目標族群：（未提供，請依網站內容與分析背景自行判斷）\n';
+  const kwLine=kw?`主題群集核心關鍵字：${kw}`:'主題群集核心關鍵字：（未提供，請依分析背景中建議優先卡位的主題自行選定）';
+  const p=P3.replace('{{SOURCE_LABEL}}',sourceLabel).replace('{{H_INPUT}}',hInput)
+    .replace('{{AUD}}',audLine).replace('{{KW}}',kwLine);
+  document.getElementById('prompt3').textContent=p;
+  show('out3');show('handoff3');scroll('out3');
+}
+
+function gen4(){
+  const h1=localStorage.getItem('handoff_step1')||'（尚未帶入）';
+  const h2=localStorage.getItem('handoff_step2');
+  const h3=localStorage.getItem('handoff_step3')||'（尚未帶入）';
+  const p=h2&&h2.trim()
+    ?P4_S2.replace('{{H1}}',h1).replace('{{H2}}',h2).replace('{{H3}}',h3)
+    :P4_NO_S2.replace('{{H1}}',h1).replace('{{H3}}',h3);
+  document.getElementById('prompt4').textContent=p;
+  show('out4');scroll('out4');
+}
+
+/* ══ 確認帶入 ══ */
+function confirm1(){
+  const t=document.getElementById('htext1').value.trim();
+  if(!t||t.startsWith('AI 完成現況分析後')){alert('請先填入 AI 分析結論再確認。');return;}
+  localStorage.setItem('handoff_step1',t);
+  document.getElementById('hconfirm1').classList.add('show');
+  setTabState(0,'done');
+  setTabState(1,'unlocked');
+  setTabState(2,'unlocked');
+  tabState[0]='done';
+}
+
+function confirm2(){
+  const t=document.getElementById('htext2').value.trim();
+  if(!t||t.startsWith('AI 完成競業分析後')){alert('請先填入 AI 分析結論再確認。');return;}
+  localStorage.setItem('handoff_step2',t);
+  document.getElementById('hconfirm2').classList.add('show');
+  setTabState(1,'done');
+  setTabState(2,'unlocked');
+}
+
+function confirm3(){
+  const t=document.getElementById('htext3').value.trim();
+  if(!t||t.startsWith('AI 完成三段輸出後')){alert('請先填入關鍵字策略結論再確認。');return;}
+  localStorage.setItem('handoff_step3',t);
+  document.getElementById('hconfirm3').classList.add('show');
+  setTabState(2,'done');
+  setTabState(3,'unlocked');
+}
+
+/* ══ 工具 ══ */
+function show(id){document.getElementById(id)?.classList.add('show');}
+function scroll(id){setTimeout(()=>document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'}),120);}
+
+/* ══ 初始化 ══ */
+window.onload=()=>{
+  const s1=localStorage.getItem('handoff_step1');
+  const s2=localStorage.getItem('handoff_step2');
+  const s3=localStorage.getItem('handoff_step3');
+
+  if(s1){
+    setTabState(0,'done');
+    setTabState(1,'unlocked');
+    setTabState(2,'unlocked');
+    // 還原第一分頁欄位（如有儲存名稱等，暫不還原，讓使用者重填）
+  }
+  if(s3){
+    setTabState(2,'done');
+    setTabState(3,'unlocked');
+  }
+  // 第一分頁永遠可點
+  document.getElementById('tab0').classList.remove('locked');
+};
+</script>
+</body>
+</html>

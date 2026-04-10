@@ -17,13 +17,13 @@
 body{font-family:var(--sans);background:var(--fill);color:var(--ink);font-size:14px;line-height:1.6;min-height:100vh}
 
 /* ── Header ── */
-.header{background:var(--white);border-bottom:1px solid var(--rule);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:48px;z-index:20}
+.header{background:var(--white);border-bottom:1px solid var(--rule);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:20}
 .header-logo{font-family:var(--serif);font-size:17px;color:var(--ink)}
 .header-logo span{color:var(--accent)}
 .header-sub{font-size:12px;color:var(--ink3)}
 
 /* ── 分頁導覽 ── */
-.tabs{display:flex;border-bottom:1px solid var(--rule);background:var(--white);padding:0 24px;position:sticky;top:100px;z-index:10;overflow-x:auto}
+.tabs{display:flex;border-bottom:1px solid var(--rule);background:var(--white);padding:0 24px;position:sticky;top:52px;z-index:10;overflow-x:auto}
 .tab{padding:13px 18px;font-size:13px;font-weight:500;color:var(--ink3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .2s,border-color .2s;white-space:nowrap;display:flex;align-items:center;gap:6px;user-select:none}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 .tab.done{color:var(--ink2);cursor:pointer}
@@ -132,15 +132,6 @@ body{font-family:var(--sans);background:var(--fill);color:var(--ink);font-size:1
 </head>
 <body>
 
-<div class="method-banner">
-  <div class="method-banner-text">
-    <strong>📋 使用前建議：</strong>請先將「將能 SEO／GEO 方法論」餵給你欲使用的 AI，再開始以下流程，以確保分析輸出符合將能的策略框架與語言風格。
-  </div>
-  <a class="method-banner-link" href="https://docs.google.com/document/d/13yxTF5fMwBAyhsrqFGRV1qpS9pZtydANZc9ipPi7RTs/edit?usp=sharing" target="_blank">
-    開啟方法論文件 →
-  </a>
-</div>
-
 <div class="header">
   <div class="header-logo">將能<span>｜</span>提案製作系統</div>
   <div class="header-sub">SEO／GEO 提案簡報生成工具</div>
@@ -170,6 +161,15 @@ body{font-family:var(--sans);background:var(--fill);color:var(--ink);font-size:1
   <p class="page-eyebrow">Step 01</p>
   <p class="page-title">現況分析</p>
   <p class="page-sub">填寫客戶基本資訊，系統將自動組裝完整的分析 Prompt。貼入 AI 對話後，再上傳 Ahrefs 資料即可執行分析。</p>
+
+  <div class="method-banner">
+    <div class="method-banner-text">
+      <strong>📋 使用前建議：</strong>請先將「將能 SEO／GEO 方法論」餵給你欲使用的 AI，再開始以下流程，以確保分析輸出符合將能的策略框架與語言風格。
+    </div>
+    <a class="method-banner-link" href="https://docs.google.com/document/d/13yxTF5fMwBAyhsrqFGRV1qpS9pZtydANZc9ipPi7RTs/edit?usp=sharing" target="_blank">
+      開啟方法論文件 →
+    </a>
+  </div>
 
   <div class="step-label"><span class="step-num">1</span>客戶基本資訊</div>
   <div class="field-row">
@@ -347,12 +347,68 @@ body{font-family:var(--sans);background:var(--fill);color:var(--ink);font-size:1
   <div class="handoff-out" id="handoff3">
     <div class="step-label" style="margin-top:32px"><span class="step-num">3</span>確認並帶入提案組裝</div>
     <p class="handoff-hint">AI 完成三段輸出後，將確認後的重點填入下方。若曾修改，重新確認即可覆蓋並更新提案組裝的帶入內容。</p>
-    <textarea class="handoff-box" id="htext3" placeholder="AI 完成三段輸出後，請將以下資訊整理後填入：
+    <textarea class="handoff-box" id="htext3" placeholder="AI 完成三段輸出後，將完整內容貼入此處，可直接編輯修改後帶入提案組裝。
 
-・客戶體驗路徑確認：例：採購前缺口最大——使用者搜尋「白內障手術要自費嗎」「眼睛保險有哪些」時安達完全缺席，為最優先補齊階段
-・主題群集核心主題：例：眼睛險——支柱文章確認方向為「眼睛險完整指南：保障範圍、保費與投保條件一次搞懂」
-・關鍵字發想優先分類：例：評估與選擇判斷（眼睛險比較、眼睛險推薦哪個好）為最優先，對應競業缺口與採購中前階段
-・需在提案中特別強調的連動邏輯：例：核心產品頁零流量 → 比較型內容缺席 → 評估型關鍵字優先佈局，三段論述前後呼應"></textarea>
+輸出一｜客戶體驗路徑 × 搜尋關鍵字
+1. 探索需求與基礎理解（採購前）
+這一階段的使用者多半剛開始接觸保險需求，先想搞懂眼睛險、意外險或醫療險到底是什麼、有沒有需要。
+代表性搜尋詞：眼睛險是什麼　意外險是什麼　醫療險種類　眼睛保險有哪些
+
+2. 評估選項與比較判斷（採購中前）
+這一階段已有保障需求，開始比較不同商品差異，想知道哪一種更適合自己的狀況。
+代表性搜尋詞：眼睛險比較　意外險推薦哪個好　眼睛險和醫療險差別　眼睛險適合誰
+
+3. 確認行動與決策細節（採購中後）
+這一階段接近投保前，會更在意保費、投保條件與理賠範圍是否符合自身需求。
+代表性搜尋詞：眼睛險保費　眼睛險投保年齡　眼睛險理賠範圍　線上投保眼睛險
+
+4. 使用後／合作後的延伸需求（採購後）
+這一階段已投保，會搜尋理賠流程、申請文件與續保條件等後續問題。
+代表性搜尋詞：眼睛險理賠申請　眼睛險理賠要準備什麼　眼睛險續保條件
+
+輸出二｜主題群集結構示意
+一、群集關鍵字池
+本次以「眼睛險」為核心，涵蓋理解、比較、費用、理賠等不同搜尋方向：
+眼睛險是什麼　眼睛險比較　眼睛險保費　眼睛險理賠範圍　眼睛險投保年齡　眼睛險推薦　眼睛保險適合誰　白內障手術保險有賠嗎
+
+二、支柱文章
+眼睛險完整指南：保障範圍、保費試算與投保條件一次搞懂
+
+三、群集文章
+1. 眼睛險是什麼？保障項目與適合族群完整說明
+2. 眼睛險比較哪個好？挑選重點與常見差異整理
+3. 眼睛險理賠申請流程與常見文件準備一次看懂
+
+四、支柱文章 → 群集文章內連結錨文字
+眼睛險是什麼　眼睛險比較　眼睛險理賠申請
+
+五、群集文章 → 支柱文章回鏈錨文字
+眼睛險保障範圍與投保條件整理
+
+輸出三｜關鍵字初步發想
+1. 理解與基礎認知
+這個方向對應剛聽到眼睛險名詞、想先搞清楚基本概念的人。
+代表性搜尋詞：眼睛險是什麼　眼睛保險種類　眼睛險保障範圍　眼睛險幾歲可以保
+
+2. 評估與選擇判斷
+這個方向對應已有保障需求、開始比較不同商品的人。
+代表性搜尋詞：眼睛險比較　眼睛險推薦哪個好　眼睛險怎麼選　眼睛險適合誰
+
+3. 費用與額度評估
+這個方向對應準備投保前、先確認保費是否在預算內的人。
+代表性搜尋詞：眼睛險保費　眼睛險多少錢　眼睛險划算嗎　眼睛險額度上限
+
+4. 申請與流程細節
+這個方向對應接近行動、想了解理賠細節與投保流程的人。
+代表性搜尋詞：眼睛險理賠申請　眼睛險投保流程　眼睛險理賠條件　眼睛險要準備什麼
+
+5. 情境與族群規劃
+這個方向對應想確認自己是否適合投保、從個人情境切入的人。
+代表性搜尋詞：銀髮族眼睛險　白內障手術保險有賠嗎　黃斑部病變保險　樂齡眼睛保障規劃
+
+6. 行動與使用後延伸
+這個方向對應已投保、有後續問題或需要理賠的人。
+代表性搜尋詞：眼睛險理賠申請　眼睛險續保條件　白內障手術後怎麼申請理賠　眼睛險注意事項"></textarea>
     <p class="handoff-hint">可直接編輯後按確認。</p>
     <button class="btn-handoff" onclick="confirm3()">確認，進入提案組裝 →</button>
     <div class="handoff-confirm" id="hconfirm3">

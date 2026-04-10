@@ -17,13 +17,13 @@
 body{font-family:var(--sans);background:var(--fill);color:var(--ink);font-size:14px;line-height:1.6;min-height:100vh}
 
 /* ── Header ── */
-.header{background:var(--white);border-bottom:1px solid var(--rule);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:20}
+.header{background:var(--white);border-bottom:1px solid var(--rule);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:48px;z-index:20}
 .header-logo{font-family:var(--serif);font-size:17px;color:var(--ink)}
 .header-logo span{color:var(--accent)}
 .header-sub{font-size:12px;color:var(--ink3)}
 
 /* ── 分頁導覽 ── */
-.tabs{display:flex;border-bottom:1px solid var(--rule);background:var(--white);padding:0 24px;position:sticky;top:52px;z-index:10;overflow-x:auto}
+.tabs{display:flex;border-bottom:1px solid var(--rule);background:var(--white);padding:0 24px;position:sticky;top:100px;z-index:10;overflow-x:auto}
 .tab{padding:13px 18px;font-size:13px;font-weight:500;color:var(--ink3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .2s,border-color .2s;white-space:nowrap;display:flex;align-items:center;gap:6px;user-select:none}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 .tab.done{color:var(--ink2);cursor:pointer}
@@ -121,9 +121,25 @@ body{font-family:var(--sans);background:var(--fill);color:var(--ink);font-size:1
 
 /* ── 第四分頁群組 ── */
 .s4-group{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+
+/* ── 全站頂部提醒 banner ── */
+.method-banner{background:#1e3a2f;color:#fff;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.method-banner-text{font-size:13px;line-height:1.55}
+.method-banner-text strong{font-weight:500;margin-right:4px}
+.method-banner-link{display:inline-flex;align-items:center;gap:5px;background:#fff;color:#1e3a2f;font-size:12px;font-weight:500;padding:6px 14px;border-radius:6px;text-decoration:none;white-space:nowrap;flex-shrink:0;transition:opacity .2s}
+.method-banner-link:hover{opacity:.85}
 </style>
 </head>
 <body>
+
+<div class="method-banner">
+  <div class="method-banner-text">
+    <strong>📋 使用前建議：</strong>請先將「將能 SEO／GEO 方法論」餵給你欲使用的 AI，再開始以下流程，以確保分析輸出符合將能的策略框架與語言風格。
+  </div>
+  <a class="method-banner-link" href="https://docs.google.com/document/d/13yxTF5fMwBAyhsrqFGRV1qpS9pZtydANZc9ipPi7RTs/edit?usp=sharing" target="_blank">
+    開啟方法論文件 →
+  </a>
+</div>
 
 <div class="header">
   <div class="header-logo">將能<span>｜</span>提案製作系統</div>
